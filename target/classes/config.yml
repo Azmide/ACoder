@@ -1,0 +1,34 @@
+# ACoder Configuration File
+# Version 1.0.0
+
+prefix: "&6[ACoder]&r"
+
+messages:
+  success: "&aYou have successfully redeemed the code!"
+  invalid: "&cThis code does not exist!"
+  used: "&eYou already redeemed this code!"
+  no-permission: "&cYou don't have permission!"
+  reload: "&aConfig reloaded successfully!"
+  code-created: "&aCode '%code%' has been created successfully!"
+  code-deleted: "&aCode '%code%' has been deleted successfully!"
+  code-exists: "&cCode '%code%' already exists!"
+  code-not-found: "&cCode '%code%' does not exist!"
+  usage-redeem: "&cUsage: /redeem <code>"
+  usage-create: "&cUsage: /acoder create <code>"
+  usage-delete: "&cUsage: /acoder delete <code>"
+  list-header: "&6=== Active Codes ==="
+  list-entry: "&e- %code% &7(Redeemed: %count% times)"
+  list-empty: "&eNo codes available."
+
+# Define your redeem codes here
+# Each code can have multiple reward commands
+# Use %player_name% as a placeholder for the player's name
+codes:
+  TESTCODE:
+    rewards:
+      - "give %player_name% emerald 10"
+      - "give %player_name% diamond 5"
+  WELCOME2024:
+    rewards:
+      - "give %player_name% golden_apple 3"
+      - "give %player_name% experience_bottle 10"

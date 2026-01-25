@@ -1,0 +1,24 @@
+name: aCoder
+version: '1.0'
+main: io.github.AzmiiD.aCoder.ACoder
+api-version: '1.21'
+authors: [ Azmii_ ]
+description: System Code Redem Java
+
+commands:
+  redeem:
+    description: Redeem a code for rewards
+    usage: /<command> <code>
+    aliases: [code]
+  acoder:
+    description: Admin commands for ACoder
+    usage: /<command> <create|delete|list|reload> [args]
+    permission: acoder.admin
+
+permissions:
+  acoder.admin:
+    description: Allows access to admin commands
+    default: op
+  acoder.redeem:
+    description: Allows players to redeem codes
+    default: true
