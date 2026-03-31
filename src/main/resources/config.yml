@@ -1,7 +1,7 @@
 # ACoder Configuration File
 # Version 1.1.0 - Added Limit Usage & Expiry Date
 
-prefix: "&6[ACoder]&r"
+prefix: "&e&lREDEEM &d>>"
 
 messages:
   success: "&aYou have successfully redeemed the code!"
@@ -43,16 +43,9 @@ codes:
     max-uses: 0  # 0 = unlimited
     # expiry-date: "31-12-2025"  # Optional: uncomment to set expiry
 
-  WELCOME2024:
+  WELCOME2026:
     rewards:
       - "give %player_name% golden_apple 3"
       - "give %player_name% experience_bottle 10"
     max-uses: 100  # Can only be used 100 times total
     expiry-date: "31-01-2026"  # Expires on 31 January 2026
-
-  LIMITEDOFFER:
-    rewards:
-      - "give %player_name% diamond 20"
-      - "give %player_name% netherite_ingot 5"
-    max-uses: 50  # First 50 people only
-    expiry-date: "15-02-2026"  # Valid until 15 February 2026
