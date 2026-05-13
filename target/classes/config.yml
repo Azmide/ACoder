@@ -1,7 +1,7 @@
 # ACoder Configuration File
-# Version 1.0.0
+# Version 1.1.0 - Added Limit Usage & Expiry Date
 
-prefix: "&6[ACoder]&r"
+prefix: "&e&lREDEEM &d>>"
 
 messages:
   success: "&aYou have successfully redeemed the code!"
@@ -17,18 +17,35 @@ messages:
   usage-create: "&cUsage: /acoder create <code>"
   usage-delete: "&cUsage: /acoder delete <code>"
   list-header: "&6=== Active Codes ==="
-  list-entry: "&e- %code% &7(Redeemed: %count% times)"
+  list-entry: "&e- %code% &7(Redeemed: %count%/%limit% times) %status%"
   list-empty: "&eNo codes available."
+  limit-reached: "&cThis code has reached its usage limit!"
+  code-expired: "&cThis code has expired!"
+  usage-setlimit: "&cUsage: /acoder setlimit <code> <amount>"
+  usage-setexpiry: "&cUsage: /acoder setexpiry <code> <DD-MM-YYYY>"
+  limit-set: "&aLimit for '%code%' has been set to %limit%"
+  expiry-set: "&aExpiry date for '%code%' has been set to %date%"
+  invalid-date: "&cInvalid date format! Use DD-MM-YYYY (example: 31-12-2025)"
 
 # Define your redeem codes here
 # Each code can have multiple reward commands
 # Use %player_name% as a placeholder for the player's name
+#
+# Optional settings per code:
+# - max-uses: Maximum number of times this code can be redeemed (0 or not set = unlimited)
+# - expiry-date: Date when code expires in DD-MM-YYYY format (not set = never expires)
+#
 codes:
   TESTCODE:
     rewards:
       - "give %player_name% emerald 10"
       - "give %player_name% diamond 5"
-  WELCOME2024:
+    max-uses: 0  # 0 = unlimited
+    # expiry-date: "31-12-2025"  # Optional: uncomment to set expiry
+
+  WELCOME2026:
     rewards:
       - "give %player_name% golden_apple 3"
       - "give %player_name% experience_bottle 10"
+    max-uses: 100  # Can only be used 100 times total
+    expiry-date: "31-01-2026"  # Expires on 31 January 2026

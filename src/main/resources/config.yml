@@ -1,7 +1,12 @@
 # ACoder Configuration File
-# Version 1.1.0 - Added Limit Usage & Expiry Date
+# Version 1.2.0 - Added HEX Color Support!
+#
+# Color Formats Supported:
+# - Legacy: &a, &c, &l, &n, etc.
+# - HEX: &#RRGGBB (example: &#FF5555 for red)
+# - You can mix them: &#0BA6DF&lREDEEM &d>> &fSuccess!
 
-prefix: "&e&lREDEEM &d>>"
+prefix: "&#0BA6DF&lREDEEM &8»"
 
 messages:
   success: "&aYou have successfully redeemed the code!"

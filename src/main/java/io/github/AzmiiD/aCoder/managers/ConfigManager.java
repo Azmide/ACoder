@@ -1,19 +1,24 @@
 package io.github.AzmiiD.aCoder.managers;
 
 import io.github.AzmiiD.aCoder.ACoder;
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ConfigManager {
 
     private final ACoder plugin;
     private FileConfiguration config;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+
+    // Pattern untuk HEX color
+    private static final Pattern HEX_PATTERN = Pattern.compile("&#([A-Fa-f0-9]{6})");
 
     public ConfigManager(ACoder plugin) {
         this.plugin = plugin;
@@ -106,7 +111,27 @@ public class ConfigManager {
         return List.copyOf(config.getConfigurationSection("codes").getKeys(false));
     }
 
+    /**
+     * Colorize string with support for:
+     * - Legacy color codes (&a, &c, &l, etc)
+     * - HEX colors (&#RRGGBB format)
+     * - RGB format (&x&R&R&G&G&B&B format from MiniMessage)
+     */
     private String colorize(String message) {
-        return ChatColor.translateAlternateColorCodes('&', message);
+        if (message == null) return "";
+
+        // Process HEX colors first (&#RRGGBB)
+        Matcher matcher = HEX_PATTERN.matcher(message);
+        StringBuffer buffer = new StringBuffer();
+
+        while (matcher.find()) {
+            String hexCode = matcher.group(1);
+            String replacement = ChatColor.of("#" + hexCode).toString();
+            matcher.appendReplacement(buffer, replacement);
+        }
+        matcher.appendTail(buffer);
+
+        // Then process legacy color codes (&a, &c, &l, etc)
+        return ChatColor.translateAlternateColorCodes('&', buffer.toString());
     }
 }
