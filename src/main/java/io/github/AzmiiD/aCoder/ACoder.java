@@ -2,58 +2,37 @@ package io.github.AzmiiD.aCoder;
 
 import io.github.AzmiiD.aCoder.commands.ACoderCommand;
 import io.github.AzmiiD.aCoder.commands.RedeemCommand;
-import io.github.AzmiiD.aCoder.managers.ConfigManager;
-import io.github.AzmiiD.aCoder.managers.DataManager;
+import io.github.AzmiiD.aCoder.managers.CodeManager;
+import io.github.AzmiiD.aCoder.managers.Messages;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ACoder extends JavaPlugin {
 
-    private static ACoder instance;
-    private ConfigManager configManager;
-    private DataManager dataManager;
+    private CodeManager codes;
 
     @Override
     public void onEnable() {
-        instance = this;
+        saveDefaultConfig();
+        Messages messages = new Messages(this);
+        codes = new CodeManager(this);
 
-        // Initialize managers
-        configManager = new ConfigManager(this);
-        dataManager = new DataManager(this);
+        getCommand("redeem").setExecutor(new RedeemCommand(codes, messages));
 
-        // Load configurations
-        configManager.loadConfig();
-        dataManager.loadData();
-
-        // Register commands
-        getCommand("redeem").setExecutor(new RedeemCommand(this));
-        getCommand("acoder").setExecutor(new ACoderCommand(this));
-
-        getLogger().info("ACoder has been enabled!");
+        ACoderCommand admin = new ACoderCommand(this, codes, messages);
+        getCommand("acoder").setExecutor(admin);
+        getCommand("acoder").setTabCompleter(admin);
     }
 
     @Override
     public void onDisable() {
-        // Save data on shutdown
-        if (dataManager != null) {
-            dataManager.saveData();
+        if (codes != null) {
+            codes.saveData();
         }
-        getLogger().info("ACoder has been disabled!");
     }
 
-    public static ACoder getInstance() {
-        return instance;
-    }
-
-    public ConfigManager getConfigManager() {
-        return configManager;
-    }
-
-    public DataManager getDataManager() {
-        return dataManager;
-    }
-
+    /** Reloads config.yml and data.yml from disk. */
     public void reload() {
-        configManager.loadConfig();
-        dataManager.loadData();
+        reloadConfig();
+        codes.loadData();
     }
 }

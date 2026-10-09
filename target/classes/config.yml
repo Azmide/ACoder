@@ -1,7 +1,11 @@
 # ACoder Configuration File
-# Version 1.1.0 - Added Limit Usage & Expiry Date
+#
+# Color Formats Supported:
+# - Legacy: &a, &c, &l, &n, etc.
+# - HEX: &#RRGGBB (example: &#FF5555 for red)
+# - You can mix them: &#0BA6DF&lREDEEM &d>> &fSuccess!
 
-prefix: "&e&lREDEEM &d>>"
+prefix: "&#0BA6DF&lREDEEM &8»"
 
 messages:
   success: "&aYou have successfully redeemed the code!"
@@ -14,6 +18,7 @@ messages:
   code-exists: "&cCode '%code%' already exists!"
   code-not-found: "&cCode '%code%' does not exist!"
   usage-redeem: "&cUsage: /redeem <code>"
+  invalid-number: "&cLimit must be a number, 0 or greater!"
   usage-create: "&cUsage: /acoder create <code>"
   usage-delete: "&cUsage: /acoder delete <code>"
   list-header: "&6=== Active Codes ==="
@@ -25,27 +30,21 @@ messages:
   usage-setexpiry: "&cUsage: /acoder setexpiry <code> <DD-MM-YYYY>"
   limit-set: "&aLimit for '%code%' has been set to %limit%"
   expiry-set: "&aExpiry date for '%code%' has been set to %date%"
-  invalid-date: "&cInvalid date format! Use DD-MM-YYYY (example: 31-12-2025)"
+  invalid-date: "&cInvalid date format! Use DD-MM-YYYY (example: 31-12-2030)"
 
-# Define your redeem codes here
-# Each code can have multiple reward commands
-# Use %player_name% as a placeholder for the player's name
-#
-# Optional settings per code:
-# - max-uses: Maximum number of times this code can be redeemed (0 or not set = unlimited)
-# - expiry-date: Date when code expires in DD-MM-YYYY format (not set = never expires)
-#
+# Redeem codes. Rewards are console commands; %player_name% is the player.
+# max-uses: 0 = unlimited. expiry-date (DD-MM-YYYY) is optional and valid through that day.
 codes:
   TESTCODE:
     rewards:
       - "give %player_name% emerald 10"
       - "give %player_name% diamond 5"
     max-uses: 0  # 0 = unlimited
-    # expiry-date: "31-12-2025"  # Optional: uncomment to set expiry
+    # expiry-date: "31-12-2030"  # Optional: uncomment to set expiry
 
   WELCOME2026:
     rewards:
       - "give %player_name% golden_apple 3"
       - "give %player_name% experience_bottle 10"
     max-uses: 100  # Can only be used 100 times total
-    expiry-date: "31-01-2026"  # Expires on 31 January 2026
+    expiry-date: "31-12-2030"

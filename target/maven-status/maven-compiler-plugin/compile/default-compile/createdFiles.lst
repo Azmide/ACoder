@@ -1,5 +1,5 @@
 io\github\AzmiiD\aCoder\commands\ACoderCommand.class
-io\github\AzmiiD\aCoder\managers\DataManager.class
+io\github\AzmiiD\aCoder\managers\Messages.class
+io\github\AzmiiD\aCoder\managers\CodeManager.class
 io\github\AzmiiD\aCoder\commands\RedeemCommand.class
-io\github\AzmiiD\aCoder\managers\ConfigManager.class
 io\github\AzmiiD\aCoder\ACoder.class

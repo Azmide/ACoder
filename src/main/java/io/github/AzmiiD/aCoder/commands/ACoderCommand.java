@@ -1,224 +1,180 @@
 package io.github.AzmiiD.aCoder.commands;
 
 import io.github.AzmiiD.aCoder.ACoder;
-import io.github.AzmiiD.aCoder.managers.ConfigManager;
-import io.github.AzmiiD.aCoder.managers.DataManager;
+import io.github.AzmiiD.aCoder.managers.CodeManager;
+import io.github.AzmiiD.aCoder.managers.Messages;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ACoderCommand implements CommandExecutor, TabCompleter {
 
-    private final ACoder plugin;
-    private final ConfigManager configManager;
-    private final DataManager dataManager;
+    private static final List<String> SUBCOMMANDS = List.of("create", "delete", "setlimit", "setexpiry", "list", "reload");
 
-    public ACoderCommand(ACoder plugin) {
+    private final ACoder plugin;
+    private final CodeManager codes;
+    private final Messages messages;
+
+    public ACoderCommand(ACoder plugin, CodeManager codes, Messages messages) {
         this.plugin = plugin;
-        this.configManager = plugin.getConfigManager();
-        this.dataManager = plugin.getDataManager();
+        this.codes = codes;
+        this.messages = messages;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("acoder.admin")) {
-            sender.sendMessage(configManager.getMessage("no-permission"));
+            sender.sendMessage(messages.get("no-permission"));
             return true;
         }
-
         if (args.length == 0) {
             sendHelp(sender);
             return true;
         }
 
-        String subCommand = args[0].toLowerCase();
-
-        switch (subCommand) {
-            case "create" -> handleCreate(sender, args);
-            case "delete" -> handleDelete(sender, args);
-            case "list" -> handleList(sender);
-            case "reload" -> handleReload(sender);
-            case "setlimit" -> handleSetLimit(sender, args);
-            case "setexpiry" -> handleSetExpiry(sender, args);
+        switch (args[0].toLowerCase()) {
+            case "create" -> create(sender, args);
+            case "delete" -> delete(sender, args);
+            case "setlimit" -> setLimit(sender, args);
+            case "setexpiry" -> setExpiry(sender, args);
+            case "list" -> list(sender);
+            case "reload" -> {
+                plugin.reload();
+                sender.sendMessage(messages.get("reload"));
+            }
             default -> sendHelp(sender);
         }
-
         return true;
     }
 
-    private void handleCreate(CommandSender sender, String[] args) {
+    private void create(CommandSender sender, String[] args) {
         if (args.length != 2) {
-            sender.sendMessage(configManager.getMessage("usage-create"));
+            sender.sendMessage(messages.get("usage-create"));
             return;
         }
-
         String code = args[1];
-
-        if (configManager.codeExists(code)) {
-            sender.sendMessage(configManager.getMessage("code-exists", "%code%", code));
+        if (codes.exists(code)) {
+            sender.sendMessage(messages.get("code-exists", Map.of("%code%", code)));
             return;
         }
-
-        configManager.createCode(code);
-        sender.sendMessage(configManager.getMessage("code-created", "%code%", code));
+        codes.create(code);
+        sender.sendMessage(messages.get("code-created", Map.of("%code%", code)));
     }
 
-    private void handleDelete(CommandSender sender, String[] args) {
+    private void delete(CommandSender sender, String[] args) {
         if (args.length != 2) {
-            sender.sendMessage(configManager.getMessage("usage-delete"));
+            sender.sendMessage(messages.get("usage-delete"));
             return;
         }
-
         String code = args[1];
-
-        if (!configManager.codeExists(code)) {
-            sender.sendMessage(configManager.getMessage("code-not-found", "%code%", code));
+        if (!codes.exists(code)) {
+            sender.sendMessage(messages.get("code-not-found", Map.of("%code%", code)));
             return;
         }
-
-        configManager.deleteCode(code);
-        dataManager.removeCodeData(code);
-        sender.sendMessage(configManager.getMessage("code-deleted", "%code%", code));
+        codes.delete(code);
+        sender.sendMessage(messages.get("code-deleted", Map.of("%code%", code)));
     }
 
-    private void handleSetLimit(CommandSender sender, String[] args) {
+    private void setLimit(CommandSender sender, String[] args) {
         if (args.length != 3) {
-            sender.sendMessage(configManager.getMessage("usage-setlimit"));
+            sender.sendMessage(messages.get("usage-setlimit"));
             return;
         }
-
         String code = args[1];
-
-        if (!configManager.codeExists(code)) {
-            sender.sendMessage(configManager.getMessage("code-not-found", "%code%", code));
+        if (!codes.exists(code)) {
+            sender.sendMessage(messages.get("code-not-found", Map.of("%code%", code)));
             return;
         }
-
+        int limit;
         try {
-            int limit = Integer.parseInt(args[2]);
-            if (limit < 0) {
-                sender.sendMessage(configManager.getPrefix() + " §cLimit must be 0 or greater!");
-                return;
-            }
-
-            configManager.setMaxUses(code, limit);
-            sender.sendMessage(configManager.getMessage("limit-set", "%code%", code)
-                    .replace("%limit%", String.valueOf(limit)));
+            limit = Integer.parseInt(args[2]);
         } catch (NumberFormatException e) {
-            sender.sendMessage(configManager.getPrefix() + " §cInvalid number!");
+            limit = -1;
         }
-    }
-
-    private void handleSetExpiry(CommandSender sender, String[] args) {
-        if (args.length != 3) {
-            sender.sendMessage(configManager.getMessage("usage-setexpiry"));
+        if (limit < 0) {
+            sender.sendMessage(messages.get("invalid-number"));
             return;
         }
+        codes.setMaxUses(code, limit);
+        sender.sendMessage(messages.get("limit-set", Map.of("%code%", code, "%limit%", String.valueOf(limit))));
+    }
 
+    private void setExpiry(CommandSender sender, String[] args) {
+        if (args.length != 3) {
+            sender.sendMessage(messages.get("usage-setexpiry"));
+            return;
+        }
         String code = args[1];
         String date = args[2];
-
-        if (!configManager.codeExists(code)) {
-            sender.sendMessage(configManager.getMessage("code-not-found", "%code%", code));
+        if (!codes.exists(code)) {
+            sender.sendMessage(messages.get("code-not-found", Map.of("%code%", code)));
             return;
         }
-
-        if (!configManager.isValidDateFormat(date)) {
-            sender.sendMessage(configManager.getMessage("invalid-date"));
+        if (CodeManager.parseDate(date) == null) {
+            sender.sendMessage(messages.get("invalid-date"));
             return;
         }
-
-        configManager.setExpiryDate(code, date);
-        sender.sendMessage(configManager.getMessage("expiry-set", "%code%", code)
-                .replace("%date%", date));
+        codes.setExpiryDate(code, date);
+        sender.sendMessage(messages.get("expiry-set", Map.of("%code%", code, "%date%", date)));
     }
 
-    private void handleList(CommandSender sender) {
-        List<String> codes = configManager.getAllCodes();
-
-        if (codes.isEmpty()) {
-            sender.sendMessage(configManager.getMessage("list-empty"));
+    private void list(CommandSender sender) {
+        List<String> all = codes.all();
+        if (all.isEmpty()) {
+            sender.sendMessage(messages.get("list-empty"));
             return;
         }
-
-        sender.sendMessage(configManager.getMessage("list-header"));
-        for (String code : codes) {
-            int count = dataManager.getRedemptionCount(code);
-            int maxUses = configManager.getMaxUses(code);
-            String expiryDate = configManager.getExpiryDate(code);
-
-            // Determine status
-            String status = "";
-            if (configManager.isCodeExpired(code)) {
-                status = "§c[EXPIRED]";
-            } else if (maxUses > 0 && count >= maxUses) {
-                status = "§c[LIMIT REACHED]";
-            } else if (expiryDate != null && !expiryDate.isEmpty()) {
-                status = "§a[Expires: " + expiryDate + "]";
-            } else {
-                status = "§a[Active]";
-            }
-
-            String limitText = maxUses > 0 ? String.valueOf(maxUses) : "∞";
-
-            String message = configManager.getMessage("list-entry", "%code%", code)
-                    .replace("%count%", String.valueOf(count))
-                    .replace("%limit%", limitText)
-                    .replace("%status%", status);
-            sender.sendMessage(message);
+        var config = plugin.getConfig();
+        sender.sendMessage(messages.color(config.getString("messages.list-header", "&6=== Codes ===")));
+        for (String code : all) {
+            int max = codes.maxUses(code);
+            String line = config.getString("messages.list-entry", "%code% %status%")
+                    .replace("%code%", code)
+                    .replace("%count%", String.valueOf(codes.redemptionCount(code)))
+                    .replace("%limit%", max > 0 ? String.valueOf(max) : "∞")
+                    .replace("%status%", status(code));
+            sender.sendMessage(messages.color(line));
         }
     }
 
-    private void handleReload(CommandSender sender) {
-        plugin.reload();
-        sender.sendMessage(configManager.getMessage("reload"));
+    private String status(String code) {
+        if (codes.isExpired(code)) return "&c[EXPIRED]";
+        if (codes.isFull(code)) return "&c[LIMIT REACHED]";
+        String expiry = codes.expiryDate(code);
+        return expiry == null || expiry.isBlank() ? "&a[Active]" : "&a[Expires: " + expiry + "]";
     }
 
     private void sendHelp(CommandSender sender) {
-        sender.sendMessage(configManager.getPrefix() + " §6ACoder Commands:");
-        sender.sendMessage("§e/acoder create <code> §7- Create a new code");
-        sender.sendMessage("§e/acoder delete <code> §7- Delete a code");
-        sender.sendMessage("§e/acoder setlimit <code> <amount> §7- Set usage limit (0 = unlimited)");
-        sender.sendMessage("§e/acoder setexpiry <code> <DD-MM-YYYY> §7- Set expiry date");
-        sender.sendMessage("§e/acoder list §7- List all codes");
-        sender.sendMessage("§e/acoder reload §7- Reload configuration");
+        sender.sendMessage(messages.prefixed("&6ACoder Commands:"));
+        sender.sendMessage(messages.color("&e/acoder create <code> &7- Create a new code"));
+        sender.sendMessage(messages.color("&e/acoder delete <code> &7- Delete a code"));
+        sender.sendMessage(messages.color("&e/acoder setlimit <code> <amount> &7- Set usage limit (0 = unlimited)"));
+        sender.sendMessage(messages.color("&e/acoder setexpiry <code> <DD-MM-YYYY> &7- Set expiry date"));
+        sender.sendMessage(messages.color("&e/acoder list &7- List all codes"));
+        sender.sendMessage(messages.color("&e/acoder reload &7- Reload configuration"));
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        List<String> completions = new ArrayList<>();
-
         if (!sender.hasPermission("acoder.admin")) {
-            return completions;
+            return List.of();
         }
-
+        List<String> options = List.of();
         if (args.length == 1) {
-            completions.add("create");
-            completions.add("delete");
-            completions.add("setlimit");
-            completions.add("setexpiry");
-            completions.add("list");
-            completions.add("reload");
+            options = SUBCOMMANDS;
         } else if (args.length == 2) {
-            String subCmd = args[0].toLowerCase();
-            if (subCmd.equals("delete") || subCmd.equals("setlimit") || subCmd.equals("setexpiry")) {
-                completions.addAll(configManager.getAllCodes());
+            switch (args[0].toLowerCase()) {
+                case "delete", "setlimit", "setexpiry" -> options = codes.all();
+                default -> { }
             }
-        } else if (args.length == 3) {
-            if (args[0].equalsIgnoreCase("setlimit")) {
-                completions.add("0");
-                completions.add("50");
-                completions.add("100");
-            } else if (args[0].equalsIgnoreCase("setexpiry")) {
-                completions.add("31-12-2025");
-                completions.add("DD-MM-YYYY");
-            }
+        } else if (args.length == 3 && args[0].equalsIgnoreCase("setlimit")) {
+            options = List.of("0", "50", "100");
         }
-
-        return completions;
+        String typed = args[args.length - 1].toLowerCase();
+        return options.stream().filter(o -> o.toLowerCase().startsWith(typed)).toList();
     }
 }

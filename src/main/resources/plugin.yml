@@ -1,9 +1,9 @@
 name: ACoder
-version: '1.2'
+version: '${project.version}'
 main: io.github.AzmiiD.aCoder.ACoder
-api-version: '1.21'
-authors: [ Azmii_ ]
-description: System Code Redem Java
+api-version: '26.2'
+authors: [ AzmiiD ]
+description: Redeem codes for rewards
 
 commands:
   redeem:
@@ -12,7 +12,7 @@ commands:
     aliases: [code]
   acoder:
     description: Admin commands for ACoder
-    usage: /<command> <create|delete|list|reload> [args]
+    usage: /<command> <create|delete|setlimit|setexpiry|list|reload>
     permission: acoder.admin
 
 permissions:
