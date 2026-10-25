@@ -1,5 +1,0 @@
-# ACoder Data File
-# This file stores which players/IPs have redeemed codes
-# Format: code_name -> list of player:ip entries
-
-redeemed: {}

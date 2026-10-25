@@ -1,50 +1,38 @@
-# ACoder Configuration File
+# ACoder configuration. Messages live in lang.yml.
 #
-# Color Formats Supported:
-# - Legacy: &a, &c, &l, &n, etc.
-# - HEX: &#RRGGBB (example: &#FF5555 for red)
-# - You can mix them: &#0BA6DF&lREDEEM &d>> &fSuccess!
+# Colors: MiniMessage (<red>, <gradient:red:blue>), legacy (&a) and hex (&#RRGGBB) are all supported.
 
 prefix: "&#0BA6DF&lREDEEM &8»"
 
-messages:
-  success: "&aYou have successfully redeemed the code!"
-  invalid: "&cThis code does not exist!"
-  used: "&eYou already redeemed this code!"
-  no-permission: "&cYou don't have permission!"
-  reload: "&aConfig reloaded successfully!"
-  code-created: "&aCode '%code%' has been created successfully!"
-  code-deleted: "&aCode '%code%' has been deleted successfully!"
-  code-exists: "&cCode '%code%' already exists!"
-  code-not-found: "&cCode '%code%' does not exist!"
-  usage-redeem: "&cUsage: /redeem <code>"
-  invalid-number: "&cLimit must be a number, 0 or greater!"
-  usage-create: "&cUsage: /acoder create <code>"
-  usage-delete: "&cUsage: /acoder delete <code>"
-  list-header: "&6=== Active Codes ==="
-  list-entry: "&e- %code% &7(Redeemed: %count%/%limit% times) %status%"
-  list-empty: "&eNo codes available."
-  limit-reached: "&cThis code has reached its usage limit!"
-  code-expired: "&cThis code has expired!"
-  usage-setlimit: "&cUsage: /acoder setlimit <code> <amount>"
-  usage-setexpiry: "&cUsage: /acoder setexpiry <code> <DD-MM-YYYY>"
-  limit-set: "&aLimit for '%code%' has been set to %limit%"
-  expiry-set: "&aExpiry date for '%code%' has been set to %date%"
-  invalid-date: "&cInvalid date format! Use DD-MM-YYYY (example: 31-12-2030)"
+redeem:
+  # Also block a code when someone from the same IP address already used it.
+  block-same-ip: true
+  # Wrong codes in a row before the player is locked out (0 = never lock).
+  max-failed-attempts: 5
+  lockout-seconds: 60
+  # Sound played on success, e.g. entity.player.levelup (empty = none).
+  success-sound: "entity.player.levelup"
 
-# Redeem codes. Rewards are console commands; %player_name% is the player.
+# Redeem codes (letters, numbers, _ and - only; case-insensitive for players).
+#
+# Rewards are run as console commands. Placeholders: %player_name%, {player}, {uuid}.
+# Optional prefixes:
+#   [player] <command>    run the command as the player
+#   [message] <text>      send the player a message (MiniMessage/legacy colors)
+#   [broadcast] <text>    broadcast a message to everyone
+#
 # max-uses: 0 = unlimited. expiry-date (DD-MM-YYYY) is optional and valid through that day.
 codes:
   TESTCODE:
     rewards:
       - "give %player_name% emerald 10"
       - "give %player_name% diamond 5"
-    max-uses: 0  # 0 = unlimited
-    # expiry-date: "31-12-2030"  # Optional: uncomment to set expiry
+    max-uses: 0
 
   WELCOME2026:
     rewards:
       - "give %player_name% golden_apple 3"
       - "give %player_name% experience_bottle 10"
-    max-uses: 100  # Can only be used 100 times total
+      - "[broadcast] <green>{player} <gray>redeemed <yellow>WELCOME2026<gray>!"
+    max-uses: 100
     expiry-date: "31-12-2030"
